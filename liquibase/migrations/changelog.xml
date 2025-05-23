@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Deepal">
+        <createTable tableName="users">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2" author="Deepal">
+        <addColumn tableName="users">
+            <column name="created_at" type="timestamp" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <sql>
+            ALTER TABLE users ADD CONSTRAINT email_contains_at CHECK (email LIKE '%@%');
+        </sql>
+        <rollback>
+            <sql>
+                ALTER TABLE users DROP CONSTRAINT IF EXISTS email_contains_at;
+            </sql>
+            <dropColumn tableName="users" columnName="created_at"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="3" author="Deepal">
+        <insert tableName="users">
+            <column name="name" value="Alice"/>
+            <column name="email" value="alice@example.com"/>
+        </insert>
+        <insert tableName="users">
+            <column name="name" value="Bob"/>
+            <column name="email" value="bob@example.com"/>
+        </insert>
+        <rollback>
+            <delete tableName="users">
+                <where>email IN ('alice@example.com', 'bob@example.com')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="4" author="Deepal">
+        <createTable tableName="posts">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_posts_users" references="users(id)"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="posts"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
