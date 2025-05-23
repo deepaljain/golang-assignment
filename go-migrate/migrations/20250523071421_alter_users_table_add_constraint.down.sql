@@ -1,0 +1,1 @@
+ALTER TABLE users DROP CONSTRAINT IF EXISTS email_contains_at;

@@ -1,0 +1,1 @@
+ALTER TABLE users ADD CONSTRAINT email_contains_at CHECK (email LIKE '%@%');
